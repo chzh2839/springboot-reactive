@@ -1,12 +1,24 @@
 package com.example.reactive;
 
+import io.netty.channel.Channel;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.thymeleaf.TemplateEngine;
+import reactor.blockhound.BlockHound;
 
 @SpringBootApplication
 public class ReactiveApplication {
 
 	public static void main(String[] args) {
+		//BlockHound.install(); // 블록하운드 등록
+
+		// TemplateEngine.process(), Unsafe.park 부분은 허용
+		// 저수준의 메서드를 허용하는 것보다 구체적인 일부 지점만 허용하는 것이 안전
+		BlockHound.builder()
+				.allowBlockingCallsInside(
+						TemplateEngine.class.getCanonicalName(), "process"
+				).allowBlockingCallsInside(Channel.Unsafe.class.getCanonicalName(), "park").install();
+
 		SpringApplication.run(ReactiveApplication.class, args);
 	}
 
