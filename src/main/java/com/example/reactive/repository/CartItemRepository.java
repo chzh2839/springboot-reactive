@@ -12,4 +12,7 @@ import reactor.core.publisher.Mono;
 public interface CartItemRepository extends ReactiveCrudRepository<CartItem, String> {
     @Query("{'item.itemId' : itemId}")
     Flux<CartItem> findAllByItemId(String itemId);
+
+    @Query("{'item.itemId' : itemId}")
+    Mono<Void> deleteCartItemByItemId(String itemId);
 }

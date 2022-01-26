@@ -1,13 +1,11 @@
 package com.example.reactive.domain;
 
 import lombok.Getter;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "cartItem")
 @Getter
 public class CartItem {
-    @Id private String cartItemId;
     private Item item;
     private int quantity;
 
@@ -28,5 +26,13 @@ public class CartItem {
 
     public void increment() {
         this.quantity++;
+    }
+
+    @Override
+    public String toString() {
+        return "CartItem{" +
+                ", item=" + item +
+                ", quantity=" + quantity +
+                '}';
     }
 }

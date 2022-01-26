@@ -10,6 +10,7 @@ import com.example.reactive.service.ItemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
@@ -106,10 +107,10 @@ public class HomeController {
                 .thenReturn("redirect:/");
     }
 
-    @DeleteMapping(value = "/deleteCartItem/{id}")
-    Mono<String> deleteCartItem(@PathVariable final String cartItemId) {
-        logger.info("deleteCartItem {}", cartItemId);
-        return this.cartService.deleteCartItem("My Cart", cartItemId).thenReturn("redirect:/");
+    @DeleteMapping(value = "/deleteCartItem/{itemId}")
+    Mono<String> deleteCartItem(@PathVariable final String itemId, final Model model) {
+        logger.info("deleteCartItem {}", itemId);
+        model.addAttribute("cart", this.cartService.deleteCartItem("My Cart", itemId));
+        return Mono.just("redirect:/");
     }
-
 }

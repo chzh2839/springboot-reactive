@@ -69,7 +69,6 @@ public class ItemService {
     }
 
     public Mono<Void> deleteItem(String itemId) {
-//        this.cartItemRepository.findAllByItemId(itemId).count();
         return this.itemRepository.deleteById(itemId);
     }
 }

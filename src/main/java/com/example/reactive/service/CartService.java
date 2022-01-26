@@ -2,6 +2,7 @@ package com.example.reactive.service;
 
 import com.example.reactive.domain.Cart;
 import com.example.reactive.domain.CartItem;
+import com.example.reactive.exception.DomainRuleViolationException;
 import com.example.reactive.repository.CartItemRepository;
 import com.example.reactive.repository.CartRepository;
 import com.example.reactive.repository.ItemRepository;
@@ -40,22 +41,21 @@ public class CartService {
                 .flatMap(this.cartRepository::save);  // 업데이트된 카트를 몽고디비에 저장
     }
 
-    public Mono<Boolean> existItemInCart(String itemId) {
-        logger.info("existItemInCart {}", itemId);
-//        return this.itemRepository.findById(itemId).flatMap(item -> this.cartItemRepository.findById(item))
-//                .map(item -> true).switchIfEmpty(Mono.just(false));
-//        return this.cartItemRepository.findByItemId(itemId).flatMap(cartItem -> {
-//            if(!cartItem.getItem().getItemId().isEmpty()) {
-//                throw new DomainRuleViolationException("이미 담긴 상품");
-//            } else {
-//                return Mono.just(false);
-//            }
-//        });
-        return null;
+    public Mono<Void> deleteMyCart(String cartId){
+        logger.info("deleteMyCart {}", cartId);
+        return this.cartRepository.deleteById(cartId);
     }
 
-    public Mono<Void> deleteCartItem(String cartId, String cartItemId) {
-        logger.info("deleteCartItem {} {}", cartId, cartItemId);
-        return this.cartItemRepository.deleteById(cartItemId);
+    public Mono<Cart> deleteCartItem(String cartId, String itemId) {
+        logger.info("deleteCartItem {} {}", cartId, itemId);
+        return this.cartRepository.findById(cartId)
+                .flatMap(cart -> cart.getCartItems().stream().filter(cartItem -> itemId.equals(cartItem.getItem().getItemId())).findAny()
+                        .map(cartItem -> {
+                            cart.getCartItems().remove(cartItem);
+                            //cartItemRepository.deleteCartItemByItemId(itemId);
+                            return this.cartRepository.save(cart);
+                        }).orElseGet(()->{
+                            throw new DomainRuleViolationException("존재하지 않는 상품입니다.");
+                        }));
     }
 }

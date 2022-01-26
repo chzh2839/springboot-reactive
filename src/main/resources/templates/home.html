@@ -54,6 +54,7 @@
 <br/>
 <div class="container">
   <h2>My Cart</h2>
+  <button type="button" class="btn btn-dark" onclick="deleteMyCart()">Delete all items</button>
   <table class="table table-hover">
     <thead>
     <tr>
@@ -61,7 +62,6 @@
       <th>itemId</th>
       <th>Name</th>
       <th>Quantity</th>
-      <th>cartItemId</th>
     </tr>
     </thead>
     <tbody th:if="${cart}">
@@ -70,9 +70,8 @@
       <td th:text="${cartItem.item.itemId}"></td>
       <td th:text="${cartItem.item.name}"></td>
       <td th:text="${cartItem.quantity}"></td>
-      <td th:text="${cartItem.cartItemId}"></td>
       <td>
-        <form th:method="delete" th:action="@{'/deleteCartItem/'+${cartItem.cartItemId}}">
+        <form th:method="delete" th:action="@{'/deleteCartItem/'+${cartItem.item.itemId}}">
           <input type="submit" value="Delete cartItem" />
         </form>
       </td>
@@ -85,6 +84,17 @@
 <!--<script type="text/javascript" src="/static/resources/js/axios.js"></script>-->
 
 <script type="text/javascript" th:inline="javascript">
+  function deleteMyCart(){
+      $.ajax({
+        type : "DELETE",
+        url : "/cart/deleteMyCart",
+        dataType: "text",
+        success: function (data) {
+          location.reload();
+        }
+      })
+  };
+
   $(document).ready(function(){
 
     console.log('시작');
