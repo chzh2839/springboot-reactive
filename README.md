@@ -6,8 +6,9 @@ Reactive programming with spring boot and mongoDB
 - mongoDB
 - Thymeleaf
 - Maven
+- Java 1.8
 
-
+  
 ※ Hooks.onOperatorDebug()  
 Enable operator stack recorder that captures a declaration stack whenever an operator is instantiated.  
 디버깅 모드를 활성화할 수 있으며, 이럴 경우 에러가 발생했을 때 출력되는 스택트레이스에 시작부터 에러가 났을 때까지 연산자의 목록을 모두 볼 수 있습니다.  
