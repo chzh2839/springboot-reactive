@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
+import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 
 @Controller
@@ -92,8 +93,10 @@ public class HomeController {
     @DeleteMapping(value = "/deleteItem/{itemId}")
     Mono<String> deleteItemIgnoreCart(@PathVariable final String itemId) {
         logger.info("deleteItem {}", itemId);
-        Mono<Void> result = this.itemService.deleteItem(itemId);
-        return result == null ? result.onErrorResume(e -> Mono.error(new DomainRuleViolationException("username is required"))).thenReturn("redirect:/") : result.thenReturn("redirect:/");
+        if(itemId == null || itemId.isEmpty()) {
+            new DomainRuleViolationException("itemId is required");
+        }
+        return this.itemService.deleteItem(itemId).thenReturn("redirect:/");
     }
 
 

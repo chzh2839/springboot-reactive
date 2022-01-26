@@ -27,18 +27,23 @@ public class CartService {
 
     public Mono<Cart> addToCart(String cartId, String itemId) {
         logger.info("addToCart {} {}", cartId, itemId);
-        return this.cartRepository.findById(cartId).defaultIfEmpty(new Cart(cartId))
+        return this.cartRepository.findById(cartId)
+                .log("foundCart")
+                .defaultIfEmpty(new Cart(cartId))
+                .log("emptyCart")
                 .flatMap(cart -> cart.getCartItems().stream().filter(cartItem -> itemId.equals(cartItem.getItem().getItemId())).findAny()
                     .map(cartItem -> { // 카트에 담겨있던 상품이라면 수량 +1
                         cartItem.increment();
-                        return Mono.just(cart);
+                        return Mono.just(cart).log("newCartItem");
                     })
-                    .orElseGet(()-> this.itemRepository.findById(itemId) // 카트에 담겨 있지 않은 상품이라면 새 row 추가
-                                .map(CartItem::new) // item -> new CartItem(item)
+                    .orElseGet(()-> this.itemRepository.findById(itemId).log("fetchedItem") // 카트에 담겨 있지 않은 상품이라면 새 row 추가
+                                .map(CartItem::new).log("cartItem") // item -> new CartItem(item)
                                 .doOnNext(cartItem -> cart.getCartItems().add(cartItem))
-                                .map(cartItem -> cart))
+                                .map(cartItem -> cart)).log("addedCartItem")
                 )
-                .flatMap(this.cartRepository::save);  // 업데이트된 카트를 몽고디비에 저장
+                .log("cartWithAnotherItem")
+                .flatMap(this.cartRepository::save) // 업데이트된 카트를 몽고디비에 저장
+                .log("savedCart");
     }
 
     public Mono<Void> deleteMyCart(String cartId){

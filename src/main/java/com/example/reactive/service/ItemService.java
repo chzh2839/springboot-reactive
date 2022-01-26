@@ -1,7 +1,6 @@
 package com.example.reactive.service;
 
 import com.example.reactive.domain.Item;
-import com.example.reactive.repository.CartItemRepository;
 import com.example.reactive.repository.ItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
