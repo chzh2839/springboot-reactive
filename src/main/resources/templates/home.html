@@ -13,6 +13,29 @@
 <br/>
 <div class="container">
   <h2>Inventory Management</h2>
+
+  <form class="row g-3" id="searchForm" method="get" th:action="@{'/search/'}">
+    <div class="col-md-6">
+      <label for="inputName" class="form-label">Name</label>
+      <input type="text" class="form-control" id="inputName" name="name">
+    </div>
+    <div class="col-12">
+      <label for="inputDesc" class="form-label">Description</label>
+      <input type="text" class="form-control" id="inputDesc" name="description">
+    </div>
+    <div class="col-12">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="gridCheck" name="useAnd" value="true">
+        <label class="form-check-label" for="gridCheck">
+          MatchingAll
+        </label>
+      </div>
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary" id="searchBtn">Search</button>
+    </div>
+  </form>
+
   <div class="d-grid gap-2 d-md-flex justify-content-md-end">
     <button type="button" class="btn btn-dark" onclick="location.href='/itemForm'">Insert item</button>
   </div>
@@ -96,9 +119,8 @@
   };
 
   $(document).ready(function(){
-
     console.log('시작');
-
+    console.log([[${items}]]);
 
   });
 </script>

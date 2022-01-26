@@ -3,6 +3,8 @@ package com.example.reactive.service;
 import com.example.reactive.domain.Item;
 import com.example.reactive.repository.CartItemRepository;
 import com.example.reactive.repository.ItemRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Range;
@@ -12,12 +14,12 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class ItemService {
-    private ItemRepository itemRepository;
-    private CartItemRepository cartItemRepository;
+    private Logger logger = LoggerFactory.getLogger(ItemService.class);
 
-    public ItemService(ItemRepository itemRepository, CartItemRepository cartItemRepository) {
+    private ItemRepository itemRepository;
+
+    public ItemService(ItemRepository itemRepository) {
         this.itemRepository = itemRepository;
-        this.cartItemRepository = cartItemRepository;
     }
 
     public Flux<Item> getItems() {
@@ -32,8 +34,9 @@ public class ItemService {
         return this.itemRepository.findByPriceBetween(Range.closed(min, max));
     }
 
-    /*
+
     public Flux<Item> searchByExample(String name, String description, boolean useAnd) {
+        logger.info("searchByExample {} {} {}", name, description, useAnd);
 
         // Probe는 필드에 어떤 값들을 가지고 있는 도메인 객체
         // ExampleMatcher는 Probe에 들어있는 그 필드의 값들을 어떻게 쿼리할 데이터와 비교할지 정의한 것
@@ -49,7 +52,7 @@ public class ItemService {
 
         Example<Item> probe = Example.of(item, matcher);
         return itemRepository.findAll(probe);
-    }*/
+    }
 
     public Mono<Item> insertItem(Item item) {
         return this.itemRepository.save(item);

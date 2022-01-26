@@ -42,9 +42,20 @@ public class HomeController {
     @GetMapping
     Mono<Rendering> home() {
         return Mono.just(Rendering.view("home.html") // html 화면 렌더링
-        .modelAttribute("items", this.itemRepository.findAll())
+        .modelAttribute("items", this.itemRepository.findAll().doOnNext(System.out::println))
         .modelAttribute("cart", this.cartRepository.findById("My Cart").defaultIfEmpty(new Cart("My Cart")))
-//        .modelAttribute("item", new Item())
+        .build());
+    }
+
+    @GetMapping(value = "/search")
+    Mono<Rendering> search(@RequestParam(required = false) String name,
+                           @RequestParam(required = false) String description,
+                           @RequestParam(required = false) String useAnd) {
+        logger.info("search {} {} {}", name, description, useAnd);
+        boolean useAndVal = useAnd != null ? Boolean.valueOf(useAnd) : false;
+        return Mono.just(Rendering.view("home.html")
+        .modelAttribute("items", this.itemService.searchByExample(name, description, useAndVal).doOnNext(System.out::println))
+        .modelAttribute("cart", this.cartRepository.findById("My Cart").defaultIfEmpty(new Cart("My Cart")))
         .build());
     }
 
@@ -65,18 +76,6 @@ public class HomeController {
                 .modelAttribute("detail", this.itemRepository.findById(itemId))
                 .build());
     }
-
-    /*
-    @GetMapping(value = "/search")
-    Mono<Rendering> search(@RequestParam(required = false) String name,
-                           @RequestParam(required = false) String description,
-                           @RequestParam boolean useAnd) {
-        logger.info("search {} {} {}", name, description, useAnd);
-        return Mono.just(Rendering.view("home.html")
-                .modelAttribute("items", this.itemService.searchByExample(name, description, useAnd))
-                .modelAttribute("cart", this.cartRepository.findById("My Cart").defaultIfEmpty(new Cart("My Cart")))
-                .build());
-    }*/
 
     @PostMapping(value = "/saveItem")
     Mono<String> insertItem(Item item) {
