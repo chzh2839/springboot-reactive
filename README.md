@@ -30,3 +30,13 @@ Checking tool to find any Blocking code.
 The point is to test together with reactive stream signal.  
 리액티브 코드 테스트 시, 핵심은 기능만을 검사하는 게 아니라 리액티브 스트림 시그널도 함께 검사해야 한다는 것이다.  
 (onSubscribe, onNext, onError, onComplete)  
+
+※ Test Strategy  
+1. null 값 처리를 포함한 도메인 객체 테스트  
+2. 가짜 협력자를 활용해서 모든 비즈니스 로직을 검사하는 서비스 계층 테스트  
+3. 내정 웹 컨테이너를 사용하는 약간의 종단 테스트  
+
+※ Slice Test  
+Middle level test between unit test and end-to-end integration test.  
+단위 테스트와 종단 간 통합 테스트 중간 수준의 테스트.  
+
