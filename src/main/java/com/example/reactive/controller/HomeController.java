@@ -3,8 +3,6 @@ package com.example.reactive.controller;
 import com.example.reactive.domain.Cart;
 import com.example.reactive.domain.Item;
 import com.example.reactive.exception.DomainRuleViolationException;
-import com.example.reactive.repository.CartRepository;
-import com.example.reactive.repository.ItemRepository;
 import com.example.reactive.service.CartService;
 import com.example.reactive.service.ItemService;
 import org.slf4j.Logger;
@@ -13,24 +11,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
-import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 
 @Controller
 public class HomeController {
     private Logger logger = LoggerFactory.getLogger(HomeController.class);
 
-    private ItemRepository itemRepository;
-    private CartRepository cartRepository;
-
     private CartService cartService;
     private ItemService itemService;
 
     //@Autowired 생략가능
-    public HomeController(ItemRepository itemRepository, CartRepository cartRepository,
-                          CartService cartService, ItemService itemService) {
-        this.itemRepository = itemRepository;
-        this.cartRepository = cartRepository;
+    public HomeController(CartService cartService, ItemService itemService) {
         this.cartService = cartService;
         this.itemService = itemService;
     }
@@ -43,8 +34,8 @@ public class HomeController {
     @GetMapping
     Mono<Rendering> home() {
         return Mono.just(Rendering.view("home.html") // html 화면 렌더링
-        .modelAttribute("items", this.itemRepository.findAll().doOnNext(System.out::println))
-        .modelAttribute("cart", this.cartRepository.findById("My Cart").defaultIfEmpty(new Cart("My Cart")))
+        .modelAttribute("items", this.itemService.getItems()) // .doOnNext(System.out::println)
+        .modelAttribute("cart", this.cartService.getCart("My Cart").defaultIfEmpty(new Cart("My Cart")))
         .build());
     }
 
@@ -56,7 +47,7 @@ public class HomeController {
         boolean useAndVal = useAnd != null ? Boolean.valueOf(useAnd) : false;
         return Mono.just(Rendering.view("home.html")
         .modelAttribute("items", this.itemService.searchByExample(name, description, useAndVal).doOnNext(System.out::println))
-        .modelAttribute("cart", this.cartRepository.findById("My Cart").defaultIfEmpty(new Cart("My Cart")))
+        .modelAttribute("cart", this.cartService.getCart("My Cart").defaultIfEmpty(new Cart("My Cart")))
         .build());
     }
 
@@ -65,7 +56,7 @@ public class HomeController {
 
     @GetMapping(value = "/itemForm")
     Mono<Rendering> itemForm(@RequestParam(required = false) final String itemId) {
-        Mono<Item> itemInfo = itemId != null ? this.itemRepository.findById(itemId) : Mono.just(new Item());
+        Mono<Item> itemInfo = itemId != null ? this.itemService.getItem(itemId) : Mono.just(new Item());
         return Mono.just(Rendering.view("itemForm.html") // html 화면 렌더링
                 .modelAttribute("item", itemInfo)
                 .build());
@@ -74,7 +65,7 @@ public class HomeController {
     @GetMapping(value = "/detail/{itemId}")
     Mono<Rendering> getDetail(@PathVariable final String itemId) {
         return Mono.just(Rendering.view("detail.html")
-                .modelAttribute("detail", this.itemRepository.findById(itemId))
+                .modelAttribute("detail", this.itemService.getItem(itemId))
                 .build());
     }
 
