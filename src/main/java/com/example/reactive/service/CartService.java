@@ -22,6 +22,10 @@ public class CartService {
         this.cartRepository = cartRepository;
     }
 
+    public Mono<Cart> getCart(String cartId) {
+        return this.cartRepository.findById(cartId);
+    }
+
     public Mono<Cart> addToCart(String cartId, String itemId) {
         logger.info("addToCart {} {}", cartId, itemId);
         return this.cartRepository.findById(cartId)
