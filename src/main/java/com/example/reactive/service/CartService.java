@@ -3,7 +3,6 @@ package com.example.reactive.service;
 import com.example.reactive.domain.Cart;
 import com.example.reactive.domain.CartItem;
 import com.example.reactive.exception.DomainRuleViolationException;
-import com.example.reactive.repository.CartItemRepository;
 import com.example.reactive.repository.CartRepository;
 import com.example.reactive.repository.ItemRepository;
 import org.slf4j.Logger;
@@ -17,12 +16,10 @@ public class CartService {
 
     private ItemRepository itemRepository;
     private CartRepository cartRepository;
-    private CartItemRepository cartItemRepository;
 
-    public CartService(ItemRepository itemRepository, CartRepository cartRepository, CartItemRepository cartItemRepository) {
+    public CartService(ItemRepository itemRepository, CartRepository cartRepository) {
         this.itemRepository = itemRepository;
         this.cartRepository = cartRepository;
-        this.cartItemRepository = cartItemRepository;
     }
 
     public Mono<Cart> addToCart(String cartId, String itemId) {
@@ -57,7 +54,6 @@ public class CartService {
                 .flatMap(cart -> cart.getCartItems().stream().filter(cartItem -> itemId.equals(cartItem.getItem().getItemId())).findAny()
                         .map(cartItem -> {
                             cart.getCartItems().remove(cartItem);
-                            //cartItemRepository.deleteCartItemByItemId(itemId);
                             return this.cartRepository.save(cart);
                         }).orElseGet(()->{
                             throw new DomainRuleViolationException("존재하지 않는 상품입니다.");
