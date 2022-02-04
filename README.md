@@ -25,3 +25,8 @@ Checking tool to find any Blocking code.
 리액티브 프로그래밍은 하나의 블로킹 코드만 있어도 리액티브 플로우가 깨지고 성능이 급격히 나빠진다.  
 이러한 블로킹 코드를 검출하는 도구로 '블록하운드'가 있다.  
 일부 블로킹 코드를 허용할 수 있는데, 저수준의 메서드를 허용하는 것보다 구체적인 일부 지점만 허용하는 것이 안전하다.  
+
+※ Reactive Code Test  
+The point is to test together with reactive stream signal.  
+리액티브 코드 테스트 시, 핵심은 기능만을 검사하는 게 아니라 리액티브 스트림 시그널도 함께 검사해야 한다는 것이다.  
+(onSubscribe, onNext, onError, onComplete)  
