@@ -99,6 +99,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!--	app 운영 관리	-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 
 	</dependencies>
 
@@ -116,6 +122,23 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<!--	docker	-->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<layers>
+						<enabled>true</enabled>
+					</layers>
+				</configuration>
+			</plugin>
+
+			<!--	git	-->
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+			</plugin>
+
 		</plugins>
 	</build>
 
