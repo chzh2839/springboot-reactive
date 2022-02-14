@@ -27,6 +27,13 @@ public class Item {
     private int availableUnits;
     private boolean active;
 
+    public Item(String itemId, String name, String description, double price) {
+        this.itemId = itemId;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+    }
+
     public Item(String name, String description, double price) {
         this();
         this.name = name;
