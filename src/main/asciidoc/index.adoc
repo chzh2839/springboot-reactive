@@ -47,3 +47,6 @@ include::{snippets}/getItem/http-response.adoc[]
 
 include::{snippets}/getItem/response-body.adoc[]
 
+===== 링크
+
+include::{snippets}/getItem-hypermedia/links.adoc[]
