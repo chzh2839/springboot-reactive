@@ -1,15 +1,18 @@
 package com.example.reactive.controller;
 
 import com.example.reactive.domain.Item;
+import com.example.reactive.repository.ItemRepository;
 import com.example.reactive.service.ItemService;
 import org.springframework.hateoas.*;
+import org.springframework.hateoas.mediatype.alps.Alps;
+import org.springframework.hateoas.mediatype.alps.Type;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mediatype.alps.Alps.*;
 import static org.springframework.hateoas.server.reactive.WebFluxLinkBuilder.*;
@@ -18,9 +21,11 @@ import static org.springframework.hateoas.server.reactive.WebFluxLinkBuilder.*;
 @RequestMapping("/hypermedia")
 public class HypermediaItemController {
     private final ItemService itemService;
+    private final ItemRepository itemRepository;
 
-    public HypermediaItemController(ItemService itemService) {
+    public HypermediaItemController(ItemService itemService, ItemRepository itemRepository) {
         this.itemService = itemService;
+        this.itemRepository = itemRepository;
     }
 
     @GetMapping
@@ -63,6 +68,69 @@ public class HypermediaItemController {
          *  5. map()을 통해 Tuple에 담긴 여러 비동기 요청 결과를 꺼내서 EntityModel을 만들고 Mono로 감싸서 반환. */
         return Mono.zip(itemService.getItem(itemId), selfLink, aggregateLink)
                 .map(o -> EntityModel.of(o.getT1(), Links.of(o.getT2(), o.getT3())));
+    }
+
+    @PostMapping("/items")
+    Mono<ResponseEntity<?>> addNewItem(@RequestBody Mono<EntityModel<Item>> item) {
+        return item.map(EntityModel::getContent)
+                .flatMap(this.itemRepository::save)
+                .map(Item::getItemId)
+                .flatMap(this::getItem)
+                .map(newModel -> ResponseEntity.created(newModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).build());
+    }
+
+    @PutMapping("/items/{itemId}")
+    Mono<ResponseEntity<?>> updateItem(@RequestBody Mono<EntityModel<Item>> item, @PathVariable String itemId) {
+        return item.map(EntityModel::getContent)
+                .map(content -> new Item(itemId, content.getName(), content.getDescription(), content.getPrice()))
+                .flatMap(this.itemRepository::save)
+                .then(getItem(itemId))
+                .map(model -> ResponseEntity.noContent()
+                            .location(model.getRequiredLink(IanaLinkRelations.SELF).toUri()).build());
+    }
+
+    // 하이퍼미디어는 단순히 데이터만이 아니라 데이터 사용방법에 대한 정보도 함께 제공.
+    @GetMapping(value = "/items/profile", produces = MediaTypes.ALPS_JSON_VALUE)
+    public Alps profile() {
+        return alps().descriptor(Collections.singletonList(descriptor()
+                                .id(Item.class.getSimpleName() + "-repr")
+                                .descriptor(Arrays.stream(Item.class.getDeclaredFields())
+                                .map(field -> descriptor().name(field.getName()).type(Type.SEMANTIC).build())
+                                .collect(Collectors.toList()))
+                                .build()))
+                .build();
+    }
+
+
+    /** 행동유도성(affordances)이 있는 API - getItems */
+    @GetMapping("/items/affordances")
+    Mono<CollectionModel<EntityModel<Item>>> getItemsWithAffordances() {
+        HypermediaItemController controller = methodOn(HypermediaItemController.class);
+
+        Mono<Link> aggregateRoot = linkTo(controller.getItems())
+                                    .withSelfRel()
+                                    .andAffordance(controller.addNewItem(null)).toMono();
+
+        return this.itemService.getItems()
+                .flatMap(item -> getItem(item.getItemId()))
+                .collectList()
+                .flatMap(models -> aggregateRoot.map(selfLink -> CollectionModel.of(models, selfLink)));
+    }
+
+    /** 행동유도성(affordances)이 있는 API - getItem */
+    @GetMapping("/items/{itemId}/affordances")
+    Mono<EntityModel<Item>> getItemWithAffordances(@PathVariable String itemId) {
+        HypermediaItemController controller = methodOn(HypermediaItemController.class);
+
+        Mono<Link> selfLink = linkTo(controller.getItem(itemId)).withSelfRel()
+                .andAffordance(controller.updateItem(null, itemId))
+                // andAffordance()는 Item을 수정할 수 있는 updateItem()메서드에 사용되는 경로를 getItem()메서드의 self 링크에 연결한다.
+                .toMono();
+
+        Mono<Link> aggregateLink = linkTo(controller.getItems()).withRel(IanaLinkRelations.ITEM).toMono();
+
+        return Mono.zip(itemService.getItem(itemId), selfLink, aggregateLink)
+                .map(o -> EntityModel.of(o.getT1(), o.getT2(), o.getT3()));
     }
 
 

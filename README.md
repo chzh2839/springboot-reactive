@@ -45,7 +45,9 @@ Middle level test between unit test and end-to-end integration test.
 API documentation tool.
 
 ### Spring Hateoas(스프링 헤이티오스)
+스프링 헤이티오스는 하이퍼미디어에 행동유도성(affordance)을 추가한 API를 제공한다.
 - RepresentationModel : 링크 정보를 포함하는 도메인 객체를 정의하는 기본 타입.
 - EntityModel : 도메인 객체를 감싸고 링크를 추가할 수 있는 모델. RepresentationModel을 상속받음.
 - CollectionModel : 도메인 객체 컬렉션을 감싸고 링크를 추가할 수 있는 모델. RepresentationModel을 상속받음.
 - PagedModel : 페이징 관련 메타데이터를 포함하는 모델. CollectionModel을 상속받음.
+

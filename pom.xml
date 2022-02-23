@@ -116,6 +116,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-hateoas</artifactId>
 			<exclusions>
+				<!-- 이 프로젝트는 스프링 웹플럭스와 리액터 네티를 사용하므로, spring-boot-starter-webflux를 사용하게 spring-boot-starter-web는 제외시킨다.  -->
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-web</artifactId>
