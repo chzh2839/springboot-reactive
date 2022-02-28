@@ -52,4 +52,22 @@ public class HypermediaItemControllerDocTest {
                                         linkWithRel("item").description("`item` 목록 링크") // 애그리컷 루트로 연결되는 item 링크를 찾고, description 설명과 함께 문서화
                                     )));
     }
+
+    @Test
+    void addNewItem() {
+        this.webTestClient.post().uri("/hypermedia/items")
+                .body(Mono.just(new Item("item-2", "silver candy bar", "실버 캔디바", 30.23)), Item.class)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody().isEmpty();
+    }
+
+    @Test
+    void findProfile() {
+        this.webTestClient.get().uri("/hypermedia/items/profile")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .consumeWith(document("profile", preprocessResponse(prettyPrint())));
+    }
 }
