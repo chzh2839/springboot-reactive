@@ -70,7 +70,7 @@ API documentation tool.
 
 ==> single(), newSingle(), parallel()은 논블로킹 작업에 사용되는 스레드를 생성하므로, block()같은 블로킹 코드가 사용되면 IllegalStateException 발생한다.
 
-####리액터 플로우에서 스케줄러 변경하는 방법
+#### 리액터 플로우에서 스케줄러 변경하는 방법
 - publishOn() :  
   호출되는 시점 이후로는 지정한 스케줄러를 사용. 사용하는 스케줄러를 여러 번 바꿀 수 있다.
 - subscribeOn() :  
