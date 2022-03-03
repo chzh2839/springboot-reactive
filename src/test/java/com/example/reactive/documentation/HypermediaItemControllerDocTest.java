@@ -2,12 +2,14 @@ package com.example.reactive.documentation;
 
 import com.example.reactive.controller.HypermediaItemController;
 import com.example.reactive.domain.Item;
+import com.example.reactive.repository.ItemRepository;
 import com.example.reactive.service.ItemService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,6 +27,9 @@ public class HypermediaItemControllerDocTest {
 
     @MockBean
     ItemService itemService;
+
+    @MockBean
+    ItemRepository itemRepository;
 
     @Test
     void getAllItems() {
@@ -70,4 +75,34 @@ public class HypermediaItemControllerDocTest {
                 .expectBody()
                 .consumeWith(document("profile", preprocessResponse(prettyPrint())));
     }
+
+
+    /** 행동유도성(affordances)이 있는 API test - getItemsWithAffordances */
+    @Test
+    void findAggregateRootItemAffordances() {
+        when(itemService.getItems()).thenReturn(Flux.just(new Item("golf ware", "골프웨어", 240.44)));
+        when(itemService.getItem((String) null)).thenReturn(Mono.just(new Item("item-4", "golf ware", "골프웨어", 240.44)));
+
+        this.webTestClient.get().uri("/hypermedia/items/affordances")
+                .accept(MediaTypes.HAL_FORMS_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .consumeWith(document("aggregate-root-affordances", preprocessResponse(prettyPrint())));
+    }
+
+
+    /** 행동유도성(affordances)이 있는 API test - getItemWithAffordances */
+    @Test
+    void getItemWithAffordances() {
+        when(itemService.getItem("item-3")).thenReturn(Mono.just(new Item("item-3", "rainbow bag", "무지개 가방", 332.30)));
+
+        this.webTestClient.get().uri("/hypermedia/items/item-3/affordances")
+                .accept(MediaTypes.HAL_FORMS_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .consumeWith(document("getItem-affordances", preprocessResponse(prettyPrint())));
+    }
+
 }
