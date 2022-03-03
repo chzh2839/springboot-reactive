@@ -16,6 +16,20 @@
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
+
+	<!--  BOM(bill of materials)파일 정보 지정. 모든 테스트 컨테이너 모듈의 올바른 버전을 한번에 지정가능.  -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>testcontainers-bom</artifactId>
+				<version>1.15.2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -123,6 +137,26 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+		<!--  spring-amqp  -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+
+		<!-- tag::testcontainers[] -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>rabbitmq</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- end::testcontainers[] -->
 
 	</dependencies>
 

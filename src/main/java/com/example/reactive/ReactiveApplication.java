@@ -1,8 +1,10 @@
 package com.example.reactive;
 
 import io.netty.channel.Channel;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.thymeleaf.TemplateEngine;
 import reactor.blockhound.BlockHound;
 
@@ -39,5 +41,12 @@ public class ReactiveApplication {
 //			mongo.save(new Item("Samsung Galaxy tab", "갤럭시 탭", 850.11));
 //		};
 //	}
+
+	// JSON 기반 메시지 직렬화 설정
+	// @Configurartion이 붙어있는 아무 클래스에서나 추가 가능 (@SpringBootApplication도 @Configurartion를 포함하고 있음)
+	@Bean
+	Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
+		return new Jackson2JsonMessageConverter();
+	}
 
 }

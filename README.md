@@ -51,3 +51,27 @@ API documentation tool.
 - CollectionModel : 도메인 객체 컬렉션을 감싸고 링크를 추가할 수 있는 모델. RepresentationModel을 상속받음.
 - PagedModel : 페이징 관련 메타데이터를 포함하는 모델. CollectionModel을 상속받음.
 
+### Testcontainer
+( https://www.testcontainers.org/ )
+- Docker를 활용하는 자바 테스트 지원 lib
+- 도커에서 실행될 수만 있다면, 어떤 DB나 메시지 브로커, 서드파티 시스템도 테스트용으로 쉽게 쓸 수 있다.
+- 테스트가 종료되면 테스트에 사용됐던 여러 컨테이너 자원도 남김없이 깔끔하게 종료된다. 그래서 테스트를 실행할 때마다 아주 쉽게 깨끗한 상태의 래빗엠큐를 실행하고 사용할 수 있다.
+
+### Scheduler
+- 스케줄러를 통해 개별 수행 단계가 어느 스레드에서 실행될지 지정할 수 있다.
+- 한 개의 스레드만 사용하면서도 비동기 논블로킹 코드를 작성할 수 있다.
+- 스레드가 시스템 자원의 가용성에 반응할 준비가 되어있을 때 개별 수행 단계를 실행하는 방식을 사용하면 가능하다.
+1. Schedulers.immediate() : 현재 스레드
+2. Schedulers.single() : 재사용 가능한 하나의 스레드. 현재 수행 중인 리액터 플로우뿐만 아니라 호출되는 모든 작업이 동일한 하나의 스레드에서 실행된다.
+3. Schedulers.newSingle() : 새로 생성한 전용 스레드
+4. Schedulers.boundedElastic() : 작업량에 따라 스레드 숫자가 늘어나거나 줄어드는 신축성(elasticity 탄력성)있는 스레드풀
+5. Schedulers.parallel() : 병렬 작업에 적합하도록 최적화된 고정 크기 워커(worker) 스레드풀
+6. Schedulers.fromExecutorService() : ExecutorService 인스턴스를 감싸서 재사용
+
+==> single(), newSingle(), parallel()은 논블로킹 작업에 사용되는 스레드를 생성하므로, block()같은 블로킹 코드가 사용되면 IllegalStateException 발생한다.
+
+####리액터 플로우에서 스케줄러 변경하는 방법
+- publishOn() :  
+  호출되는 시점 이후로는 지정한 스케줄러를 사용. 사용하는 스케줄러를 여러 번 바꿀 수 있다.
+- subscribeOn() :  
+  플로우 전 단계에 걸쳐 사용되는 스케줄러를 지정. 플로우 전체에 영향을 미치므로 publishOn()에 비해 영향범위가 더 넓다.
