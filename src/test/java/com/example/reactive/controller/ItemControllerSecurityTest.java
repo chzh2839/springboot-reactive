@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureWebTestClient
-public class HomeControllerSecurityTest {
+public class ItemControllerSecurityTest {
     @Autowired
     WebTestClient webTestClient;
 
