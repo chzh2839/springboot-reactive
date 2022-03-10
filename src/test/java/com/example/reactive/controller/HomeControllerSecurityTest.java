@@ -1,5 +1,6 @@
 package com.example.reactive.controller;
 
+import com.example.reactive.domain.Item;
 import com.example.reactive.repository.ItemRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,21 @@ public class HomeControllerSecurityTest {
 
     @Autowired
     ItemRepository itemRepository;
+
+    @Test
+    void verifyLoginPageBlocksAccess() {
+        this.webTestClient.get().uri("/") //
+                .exchange() //
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    @WithMockUser(username = "ada")
+    void verifyLoginPageWorks() {
+        this.webTestClient.get().uri("/") //
+                .exchange() //
+                .expectStatus().isOk();
+    }
 
     @Test
     @WithMockUser(username = "alice", roles = { "SOME_OTHER_ROLE" }) // <1> 실패하는 테스트
@@ -58,5 +74,31 @@ public class HomeControllerSecurityTest {
                     return true; // <8>
                 }) //
                 .verifyComplete(); // <9>
+    }
+
+    @Test
+    @WithMockUser(username = "carol", roles = { "SOME_OTHER_ROLE" })
+    void deletingInventoryWithoutProperRoleFails() {
+        this.webTestClient.delete().uri("/item/item-1") //
+                .exchange() //
+                .expectStatus().isForbidden();
+    }
+
+    @Test
+    @WithMockUser(username = "dan", roles = { "INVENTORY" })
+    void deletingInventoryWithProperRoleSucceeds() {
+//        String id = this.itemRepository.findById("item-1") //
+//                .map(Item::getItemId) //
+//                .block();
+
+        this.webTestClient //
+                .delete().uri("/item/item-1") //
+                .exchange() //
+                .expectStatus().isOk();
+
+        this.itemRepository.findById("item-1") //
+                .as(StepVerifier::create) //
+                .expectNextCount(0) //
+                .verifyComplete();
     }
 }
