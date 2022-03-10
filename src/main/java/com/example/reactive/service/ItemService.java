@@ -54,10 +54,12 @@ public class ItemService {
     }
 
     public Mono<Item> insertItem(Item item) {
+        logger.info("insertItem {}", item);
         return this.itemRepository.save(item);
     }
 
     public Mono<Item> updateItem(Item item, String itemId) {
+        logger.info("updateItem {} {}", itemId, item);
         return this.itemRepository.findById(itemId).flatMap(obj -> {
             obj.setItemId(itemId);
             obj.setName(item.getName());

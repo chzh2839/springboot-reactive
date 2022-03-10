@@ -7,6 +7,7 @@ import com.example.reactive.service.CartService;
 import com.example.reactive.service.ItemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,16 +27,21 @@ public class HomeController {
         this.itemService = itemService;
     }
 
+    private static String cartName(Authentication auth) {
+        return auth.getName() + "'s Cart";
+    }
+
 //    @GetMapping
 //    Mono<String> home() {
 //        return Mono.just("home");
 //    }
 
     @GetMapping
-    Mono<Rendering> home() {
+    Mono<Rendering> home(Authentication auth) {
         return Mono.just(Rendering.view("home.html") // html 화면 렌더링
         .modelAttribute("items", this.itemService.getItems()) // .doOnNext(System.out::println)
-        .modelAttribute("cart", this.cartService.getCart("My Cart").defaultIfEmpty(new Cart("My Cart")))
+        .modelAttribute("cart", this.cartService.getCart(cartName(auth)).defaultIfEmpty(new Cart(cartName(auth))))
+        .modelAttribute("auth", auth)
         .build());
     }
 
@@ -94,16 +100,16 @@ public class HomeController {
     /** cart **/
 
     @PostMapping(value = "/addToCart/{itemId}")
-    Mono<String> addToCart(@PathVariable final String itemId) {
+    Mono<String> addToCart(@PathVariable final String itemId, Authentication auth) {
         logger.info("addToCart {}", itemId);
-        return this.cartService.addToCart("My Cart", itemId)
+        return this.cartService.addToCart(cartName(auth), itemId)
                 .thenReturn("redirect:/");
     }
 
     @DeleteMapping(value = "/deleteCartItem/{itemId}")
-    Mono<String> deleteCartItem(@PathVariable final String itemId, final Model model) {
+    Mono<String> deleteCartItem(@PathVariable final String itemId, final Model model, Authentication auth) {
         logger.info("deleteCartItem {}", itemId);
-        model.addAttribute("cart", this.cartService.deleteCartItem("My Cart", itemId));
+        model.addAttribute("cart", this.cartService.deleteCartItem(cartName(auth), itemId));
         return Mono.just("redirect:/");
     }
 }

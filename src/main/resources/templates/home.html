@@ -12,6 +12,24 @@
 <body>
 <br/>
 <div class="container">
+  <table>
+    <tr>
+      <td>Name : </td>
+      <td th:text="${auth.name}"></td>
+    </tr>
+    <tr>
+      <td>Authorities : </td>
+      <td th:each="authorities, index : ${auth.authorities}">
+        <span th:text="${authorities}"></span>
+      </td>
+    </tr>
+  </table>
+  <form action="/logout" method="post">
+    <input type="submit" value="Logout" />
+  </form>
+
+  <hr />
+
   <h2>Inventory Management</h2>
 
   <form class="row g-3" id="searchForm" method="get" th:action="@{'/search/'}">
@@ -121,6 +139,7 @@
   $(document).ready(function(){
     console.log('시작');
     console.log([[${items}]]);
+    console.log([[${auth}]]);
 
   });
 </script>
