@@ -6,13 +6,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
+@EnableReactiveMethodSecurity
 public class SecurityConfig {
+    public static final String USER = "USER";
+    public static final String INVENTORY = "INVENTORY";
+
+    public static String role(String auth) {
+        return "ROLE_" + auth;
+    }
+
     @Bean
     public ReactiveUserDetailsService userDetailsService(UserRepository userRepository){
         return username -> userRepository.findByName(username)
@@ -23,15 +32,12 @@ public class SecurityConfig {
                         .build()); // userDetails 객체 생성
     }
 
-    static final String USER = "USER";
-    static final String INVENTORY = "INVENTORY";
-
     @Bean
     SecurityWebFilterChain myCustomSecurityPolicy(ServerHttpSecurity http) { // <1>
         return http //
                 .authorizeExchange(exchanges -> exchanges //
-                        .pathMatchers(HttpMethod.POST, "/item").hasRole(INVENTORY) // itemController 아이템추가
-                        .pathMatchers(HttpMethod.POST, "/saveItem").hasRole(INVENTORY) // homeController 아이템추가
+//                        .pathMatchers(HttpMethod.POST, "/item").hasRole(INVENTORY) // itemController 아이템추가
+//                        .pathMatchers(HttpMethod.POST, "/saveItem").hasRole(INVENTORY) // homeController 아이템추가
 //                        .pathMatchers(HttpMethod.DELETE, "/**").hasRole(INVENTORY)
                         .anyExchange().authenticated() // <3>
                         .and() //
@@ -40,10 +46,6 @@ public class SecurityConfig {
                         .formLogin()) // <5> 로그인 정보를 HTTP FORM으로 전송하는 것을 허용
                 .csrf().disable() //
                 .build();
-    }
-
-    static String role(String auth) {
-        return "ROLE_" + auth;
     }
 
     @Bean
