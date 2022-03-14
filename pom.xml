@@ -159,9 +159,25 @@
 		<!-- end::testcontainers[] -->
 
 		<!-- tag::spring-security[] -->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-security</artifactId>-->
+<!--		</dependency>-->
+		<!-- OAuth -->
+		<!-- 1. 컨트롤러에서 스프링 시큐리티 설정 애너테이션과 타입을 사용하기 위해 필요 -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+		</dependency>
+		<!-- 2. 우리가 만드는 app이 oauth클라이언트로서 oauth프로바이더와 통신할 떄 필요 -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-client</artifactId>
+		</dependency>
+		<!-- 3. JOSE(javascript Object Signing and Encryption)를 사용할 때 필요 -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-jose</artifactId>
 		</dependency>
 		<!-- end::spring-security[] -->
 
@@ -172,6 +188,13 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- end::spring-security-test[] -->
+
+		<!-- tag::spring-security-thymeleaf[] -->
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity5</artifactId>
+		</dependency>
+		<!-- end::spring-security-thymeleaf[] -->
 
 	</dependencies>
 

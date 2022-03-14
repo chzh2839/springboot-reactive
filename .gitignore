@@ -33,5 +33,5 @@ build/
 .vscode/
 
 
-application.yml
+application2.yml
 **/test/resources/

@@ -8,6 +8,10 @@ import com.example.reactive.service.ItemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,18 +35,42 @@ public class HomeController {
         return auth.getName() + "'s Cart";
     }
 
+    private static String cartNameWithOAuth(OAuth2User oAuth2User) {
+        return oAuth2User.getName() + "'s Cart";
+    }
+
 //    @GetMapping
 //    Mono<String> home() {
 //        return Mono.just("home");
 //    }
 
+//    @GetMapping
+//    Mono<Rendering> home(Authentication auth) {
+//        return Mono.just(Rendering.view("home.html") // html 화면 렌더링
+//        .modelAttribute("items", this.itemService.getItems()) // .doOnNext(System.out::println)
+//        .modelAttribute("cart", this.cartService.getCart(cartName(auth)).defaultIfEmpty(new Cart(cartName(auth))))
+//        .modelAttribute("auth", auth)
+//        .build());
+//    }
+
+
+
     @GetMapping
-    Mono<Rendering> home(Authentication auth) {
-        return Mono.just(Rendering.view("home.html") // html 화면 렌더링
-        .modelAttribute("items", this.itemService.getItems()) // .doOnNext(System.out::println)
-        .modelAttribute("cart", this.cartService.getCart(cartName(auth)).defaultIfEmpty(new Cart(cartName(auth))))
-        .modelAttribute("auth", auth)
-        .build());
+    Mono<Rendering> home( //
+                          @RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient,
+                          @AuthenticationPrincipal OAuth2User oauth2User) { // <1>
+        return Mono.just(Rendering.view("home.html") //
+                .modelAttribute("items", this.itemService.getItems()) //
+                .modelAttribute("cart", this.cartService.getCart(cartNameWithOAuth(oauth2User)) // <2>
+                        .defaultIfEmpty(new Cart(cartNameWithOAuth(oauth2User)))) //
+
+                // Fetching authentication details is a little more complex
+                .modelAttribute("userName", oauth2User.getName()) //
+                .modelAttribute("authorities", oauth2User.getAuthorities()) //
+                .modelAttribute("clientName", //
+                        authorizedClient.getClientRegistration().getClientName()) //
+                .modelAttribute("userAttributes", oauth2User.getAttributes()) //
+                .build());
     }
 
     @GetMapping(value = "/search")
@@ -99,10 +127,16 @@ public class HomeController {
 
     /** cart **/
 
-    @PostMapping(value = "/addToCart/{itemId}")
-    Mono<String> addToCart(@PathVariable final String itemId, Authentication auth) {
-        logger.info("addToCart {}", itemId);
-        return this.cartService.addToCart(cartName(auth), itemId)
+//    @PostMapping(value = "/addToCart/{itemId}")
+//    Mono<String> addToCart(@PathVariable final String itemId, Authentication auth) {
+//        logger.info("addToCart {}", itemId);
+//        return this.cartService.addToCart(cartName(auth), itemId)
+//                .thenReturn("redirect:/");
+//    }
+
+    @PostMapping("/addToCart/{itemId}")
+    Mono<String> addToCart(@AuthenticationPrincipal OAuth2User oauth2User, @PathVariable String itemId) {
+        return this.cartService.addToCart(cartNameWithOAuth(oauth2User), itemId)
                 .thenReturn("redirect:/");
     }
 
